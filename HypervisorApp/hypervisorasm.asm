@@ -1,0 +1,44 @@
+PUBLIC GetCpuID
+PUBLIC VMX_Support_Detection
+
+.code _text
+
+GetCpuID PROC PUBLIC
+MOV EAX, EDX
+MOV R8, RCX
+
+CPUID
+
+MOV [R8], EAX
+MOV [R8+4], EBX
+MOV [R8+8], ECX
+MOV [R8+12], EDX
+
+RET
+GetCpuID ENDP
+
+VMX_Support_Detection PROC PUBLIC
+XOR EAX, EAX
+INC EAX
+
+CPUID
+
+;为1产生进位
+BT ECX, 5h
+;如果有进位跳转
+JC VMX_SUPPORT
+
+VMX_NOT_SUPPORT:
+MOV RAX, 0
+JMP NOPINSTR
+
+VMX_SUPPORT:
+MOV RAX, 1
+
+NOPINSTR:
+NOP
+RET
+
+VMX_Support_Detection ENDP
+
+END
